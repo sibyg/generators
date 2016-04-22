@@ -3,10 +3,13 @@ package com.siby.generators;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
 public class StringGenerator extends Generator<String> {
-    private Integer length;
+    private Integer length = 3;
 
     public StringGenerator(Integer length) {
-        this.length = length;
+        if (length != null) {
+            this.length = length;
+        }
+
     }
 
     @Override
