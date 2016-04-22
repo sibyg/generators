@@ -7,7 +7,6 @@ public class BooleanGenerator extends Generator<Boolean> {
     private final Random random = new Random();
 
 
-    @Override
     public Boolean next() {
         return random.nextBoolean();
     }

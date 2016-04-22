@@ -17,7 +17,6 @@ public class BigDecimalGenerator extends Generator<BigDecimal> {
         this.decimalPlaces = decimalPlaces;
     }
 
-    @Override
     public BigDecimal next() {
         double pow = pow(10, decimalPlaces);
         return new BigDecimal((long) random.nextInt((int) (max * pow)) / pow).setScale(decimalPlaces, FLOOR);
