@@ -3,14 +3,14 @@ package com.siby.generators;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static uk.co.argos.research.generators.RandomGenerator.randomString;
-import static uk.co.argos.research.generators.RandomGenerator.randomValues;
+import static com.siby.generators.RandomGenerator.STRING;
+import static java.lang.String.format;
 
-public class UriGenerator extends Generator<URI> {
-    @Override
+public class UriGenerator implements Generator<URI> {
+
     public URI next() {
         try {
-            return new URI(format("http://%s.%s", randomString(), randomValues("com", "co.uk", "org")));
+            return new URI(format("http://%s.%s", STRING.next(), RandomGenerator.values("com", "co.uk", "org").next()));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

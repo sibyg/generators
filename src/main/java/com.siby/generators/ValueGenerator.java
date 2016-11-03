@@ -1,6 +1,6 @@
 package com.siby.generators;
 
-public class ValueGenerator<T> extends Generator<T> {
+public class ValueGenerator<T> implements Generator<T> {
 
     private Iterable<T> values;
 
@@ -8,7 +8,8 @@ public class ValueGenerator<T> extends Generator<T> {
         this.values = values;
     }
 
+
     public T next() {
-        return values.iterator().next(); //TODO sibyg fix it
+        return values.iterator().next();
     }
 }

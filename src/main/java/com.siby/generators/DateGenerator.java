@@ -3,7 +3,7 @@ package com.siby.generators;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
 
-public class DateGenerator extends Generator<LocalDate> {
+public class DateGenerator implements Generator<LocalDate> {
     private final LocalDate start;
     private final LocalDate end;
 
@@ -18,7 +18,7 @@ public class DateGenerator extends Generator<LocalDate> {
         this.end = direction == Direction.FORWARD ? today.plus(maxAge) : today.minus(maxAge);
     }
 
-    @Override
+
     public LocalDate next() {
         return new LocalDate(); //TODO siby george fix it
     }
