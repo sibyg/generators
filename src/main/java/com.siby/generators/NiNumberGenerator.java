@@ -7,7 +7,7 @@ public class NiNumberGenerator implements Generator<String> {
     public String next() {
         return format("%s%06d%s",
                 // See http://www.hmrc.gov.uk/paye/payroll/year-end/errors.htm#x7 for the origin of this list.
-                RandomGenerator.values("AA", "AB", "AE", "AH", "AK", "AL", "AM", "AP", "AR", "AS", "AT", "AW", "AX", "AY", "AZ",
+                Random.values("AA", "AB", "AE", "AH", "AK", "AL", "AM", "AP", "AR", "AS", "AT", "AW", "AX", "AY", "AZ",
                         "BA", "BB", "BE", "BH", "BK", "BL", "BM", "BT",
                         "CA", "CB", "CE", "CH", "CK", "CL", "CR",
                         "EA", "EB", "EE", "EH", "EK", "EL", "EM", "EP", "ER", "ES", "ET", "EW", "EX", "EY", "EZ",
@@ -26,7 +26,7 @@ public class NiNumberGenerator implements Generator<String> {
                         "WA", "WB", "WE", "WK", "WL", "WM", "WP",
                         "YA", "YB", "YE", "YH", "YK", "YL", "YM", "YP", "YR", "YS", "YT", "YW", "YX", "YY", "YZ",
                         "ZA", "ZB", "ZE", "ZH", "ZK", "ZL", "ZM", "ZP", "ZR", "ZS", "ZT", "ZW", "ZX", "ZY").next(),
-                RandomGenerator.integer(999999).next(),
-                RandomGenerator.values("A", "B", "C", "D").next());
+                Random.integerWithMax(999999).next(),
+                Random.values("A", "B", "C", "D").next());
     }
 }

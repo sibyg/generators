@@ -1,7 +1,5 @@
 package com.siby.generators;
 
-import static com.siby.generators.RandomGenerator.integer;
-
 public class EnumPicker<T extends Enum<?>> implements Generator<T> {
 
     private final Class<T> clazz;
@@ -9,7 +7,7 @@ public class EnumPicker<T extends Enum<?>> implements Generator<T> {
 
     public EnumPicker(final Class<T> clazz) {
         this.clazz = clazz;
-        this.generator = integer(clazz.getEnumConstants().length);
+        this.generator = Random.integerWithMax(clazz.getEnumConstants().length);
     }
 
 

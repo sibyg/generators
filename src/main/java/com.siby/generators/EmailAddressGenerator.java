@@ -5,6 +5,6 @@ import static java.lang.String.format;
 public class EmailAddressGenerator implements Generator<String> {
 
     public String next() {
-        return format("%s@%s.%s", RandomGenerator.string(10).next(), RandomGenerator.string(10).next(), RandomGenerator.values("com", "co.uk", "gov.uk", "org", "net").next());
+        return format("%s@%s.%s", Random.string(10).next(), Random.string(10).next(), Random.values("com", "co.uk", "gov.uk", "org", "net").next());
     }
 }
