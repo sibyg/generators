@@ -23,6 +23,12 @@ public class Random {
     public static Generator<String> string(Integer length) {
         return new StringGenerator(length);
     }
+    public static Generator<String> stringFromRegex(String regex) {
+        return new StringFromRegexGenerator(regex);
+    }
+    public static Generator<String> jsonFromSchema(String schemaLocation) {
+        return new JsonFromSchemaGenerator(schemaLocation);
+    }
 
     public static <T> Generator<T> values(Iterable<T> values) {
         return new ValueGenerator<T>(values);

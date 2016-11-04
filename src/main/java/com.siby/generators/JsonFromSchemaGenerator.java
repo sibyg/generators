@@ -14,7 +14,10 @@ import java.util.Map;
 
 import static com.google.common.base.Charsets.UTF_8;
 
-class JsonFromSchemaGenerator implements Generator<JSONObject> {
+/**
+ * TODO: WIP
+ */
+class JsonFromSchemaGenerator implements Generator<String> {
 
     private final String pathToJsonSchema;
     Gson gson = new Gson();
@@ -24,7 +27,7 @@ class JsonFromSchemaGenerator implements Generator<JSONObject> {
         this.pathToJsonSchema = pathToJsonSchema;
     }
 
-    public JSONObject next() {
+    public String next() {
         String jsonContext = null;
         try {
             jsonContext = getJsonContext();
