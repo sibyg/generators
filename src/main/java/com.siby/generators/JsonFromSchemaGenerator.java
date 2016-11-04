@@ -8,11 +8,13 @@ import com.mifmif.common.regex.Generex;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static java.lang.String.format;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -125,7 +127,16 @@ class JsonFromSchemaGenerator implements Generator<String> {
         String value;
         if (jsonObj.containsKey("pattern")) {
             final String pattern = (String) jsonObj.get("pattern");
-            value = new Generex(pattern).random().replace('^',' ').replace('$', ' ').trim();
+            value = new Generex(pattern).random().replace('^', ' ').replace('$', ' ').trim();
+        } else if (jsonObj.containsKey("format")) {
+            String format = (String) jsonObj.get("format");
+            if (format.equals("email")) {
+                value = Random.emailAddress.next();
+            } else if (format.equals("date-time")) {
+                value = ZonedDateTime.now().format(ISO_DATE_TIME);
+            } else {
+                value = Random.string.next();
+            }
         } else {
             value = Random.string.next();
         }
