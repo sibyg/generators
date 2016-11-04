@@ -35,9 +35,9 @@ public class Random {
         return new StringFromRegexGenerator(regex);
     }
 
-//    public static Generator<String> jsonFromSchema(String schemaLocation) {
-//        return new JsonFromSchemaGenerator(schemaLocation);
-//    }
+    public static Generator<String> jsonFromSchema(String schemaLocation) {
+        return new JsonFromSchemaGenerator(schemaLocation);
+    }
 
     public static Generator<String> string(int length) {
         return new StringGenerator(length);
