@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,33 +22,28 @@ import static java.util.stream.Collectors.joining;
  */
 class JsonFromSchemaGenerator implements Generator<String> {
 
-    private final String pathToJsonSchema;
     private final Gson gson = new Gson();
-    private final Map<String, String> definitionsInJson = new HashMap<>();
+    private final Map rootJsonObj;
 
     JsonFromSchemaGenerator(String pathToJsonSchema) {
-        this.pathToJsonSchema = pathToJsonSchema;
+        rootJsonObj = gson.fromJson(getSchemaContent(pathToJsonSchema), Map.class);
     }
 
     public String next() {
-        final Map jsonObj = gson.fromJson(getSchemaContent(), Map.class);
-        processSchemaJsonObjectForDefinitions(jsonObj);
-        return processSchemaJsonObjectForType(jsonObj);
+        return processSchemaJsonObjectForType(rootJsonObj);
     }
 
-    private void processSchemaJsonObjectForDefinitions(Map jsonObj) {
-        if (!jsonObj.containsKey("definitions")) {
-            return;
-        }
-        final Map definitions = (Map) jsonObj.get("definitions");
-        for (Object key : definitions.keySet()) {
-            final Map definition = (Map) definitions.get(key);
-            final String value = processSchemaJsonObjectForType(definition);
-            definitionsInJson.put("#/definitions/" + key, value);
-        }
+    private String getJsonForDefinition(String definitionKey) {
+        final Map definitions = (Map) rootJsonObj.get("definitions");
+        final Map definition = (Map) definitions.get(definitionKey);
+        return processSchemaJsonObjectForType(definition);
     }
 
     private String processSchemaJsonObjectForType(Map jsonObj) {
+
+        if (jsonObj.containsKey("$ref")) {
+            return processSchemaJsonObjectForRef(jsonObj);
+        }
 
         StringBuilder sb = new StringBuilder();
 
@@ -112,7 +106,13 @@ class JsonFromSchemaGenerator implements Generator<String> {
             }
         }
 
-        final Map childJsonObj = (Map) jsonObj.get("properties");
+        if (jsonObj.containsKey("oneOf")) {
+            final List oneOf = (List) jsonObj.get("oneOf");
+            // TODO make it pick any of the object
+            return processObject((Map) oneOf.get(0));
+        }
+
+        Map childJsonObj = (Map) jsonObj.get("properties");
         //TODO generate all required fields and optional fields :)
 
         sb.append(childJsonObj.keySet().stream().map(key -> format("\"%s\":", key) + processValue(childJsonObj, key)).collect(joining(", ")));
@@ -198,16 +198,26 @@ class JsonFromSchemaGenerator implements Generator<String> {
     }
 
     private String processSchemaJsonObjectForEnum(Map jsonObj) {
-        List<String> items = (List<String>) jsonObj.get("enum");
-        return format("\"%s\"", Random.values(items).next());
+        final Object anEnum = jsonObj.get("enum");
+        List<String> items = (List<String>) anEnum;
+        final Object next1 = Random.values(items).next();
+        if (next1 instanceof Boolean) {
+            return next1.toString();
+        }
+        final String next = (String) next1;
+        if (next.equalsIgnoreCase("true") || next.equalsIgnoreCase("false")) {
+            return next;
+        }
+        return format("\"%s\"", next);
     }
 
     private String processSchemaJsonObjectForRef(Map jsonObj) {
         final String ref = (String) jsonObj.get("$ref");
-        return definitionsInJson.get(ref);
+        final String definitionKey = ref.replace("#/definitions/", "");
+        return getJsonForDefinition(definitionKey);
     }
 
-    private String getSchemaContent() {
+    private String getSchemaContent(String pathToJsonSchema) {
         String schemaContent;
         try {
             if (Paths.get(pathToJsonSchema).isAbsolute()) {
