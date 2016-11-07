@@ -140,9 +140,22 @@ class JsonFromSchemaGenerator implements Generator<String> {
         if (jsonObj.containsKey("minItems")) {
             minItems = ((Double) jsonObj.get("minItems")).intValue();
         }
-        Map items = (Map) jsonObj.get("items");
 
-        return format("[%s]", processSchemaJsonObjectForType(items));
+        final Object items = jsonObj.get("items");
+        String arrayValue;
+
+        if (items instanceof Map) {
+            arrayValue = processSchemaJsonObjectForType((Map) items);
+        } else if (items instanceof List) {
+            List<Map> listOfItems = (List<Map>) items;
+            arrayValue = listOfItems.stream().map(this::processObject).collect(joining(", "));
+
+        } else {
+            throw new RuntimeException("Uknown Array Type:" + items);
+        }
+
+        return format("[%s]", arrayValue);
+
     }
 
     private Integer processInteger(Map jsonObj) {
