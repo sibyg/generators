@@ -1,5 +1,7 @@
 package com.siby.generators;
 
+import static java.lang.Math.abs;
+
 public class IntegerGenerator implements Generator<Integer> {
 
     private final Integer min;
@@ -11,7 +13,7 @@ public class IntegerGenerator implements Generator<Integer> {
     }
 
     public Integer next() {
-        return RANDOM.nextInt(max - min) + min;
+        return RANDOM.nextInt(abs(max - min)) + min;
     }
 
     static class IntegerGeneratorBuilder {
