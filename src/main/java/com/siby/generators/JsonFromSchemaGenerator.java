@@ -67,6 +67,9 @@ class JsonFromSchemaGenerator implements Generator<String> {
             case "object":
                 sb.append(processObject(jsonObj));
                 break;
+            case "boolean":
+                sb.append(processBoolean(jsonObj));
+                break;
             case "string":
                 sb.append(processString(jsonObj));
                 break;
@@ -188,6 +191,10 @@ class JsonFromSchemaGenerator implements Generator<String> {
             value = Random.string.next();
         }
         return format("\"%s\"", value);
+    }
+
+    private boolean processBoolean(Map jsonObj) {
+        return Random.booleanVal.next();
     }
 
     private String processSchemaJsonObjectForEnum(Map jsonObj) {
