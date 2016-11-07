@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,21 +25,43 @@ class JsonFromSchemaGenerator implements Generator<String> {
 
     private final String pathToJsonSchema;
     private final Gson gson = new Gson();
-
+    private final Map<String, String> definitionsInJson = new HashMap<>();
 
     JsonFromSchemaGenerator(String pathToJsonSchema) {
         this.pathToJsonSchema = pathToJsonSchema;
     }
 
     public String next() {
-        return processSchemaJsonObjectForType(gson.fromJson(getSchemaContent(), Map.class));
+        final Map jsonObj = gson.fromJson(getSchemaContent(), Map.class);
+        processSchemaJsonObjectForDefinitions(jsonObj);
+        return processSchemaJsonObjectForType(jsonObj);
+    }
+
+    private void processSchemaJsonObjectForDefinitions(Map jsonObj) {
+        if (!jsonObj.containsKey("definitions")) {
+            return;
+        }
+        final Map definitions = (Map) jsonObj.get("definitions");
+        for (Object key : definitions.keySet()) {
+            final Map definition = (Map) definitions.get(key);
+            final String value = processSchemaJsonObjectForType(definition);
+            definitionsInJson.put("#/definitions/" + key, value);
+        }
     }
 
     private String processSchemaJsonObjectForType(Map jsonObj) {
 
         StringBuilder sb = new StringBuilder();
 
-        final String type = (String) jsonObj.get("type");
+        final Object typeObj = jsonObj.get("type");
+
+        String type;
+
+        if (typeObj instanceof List) {
+            type = anyType((List<String>) typeObj);
+        } else {
+            type = (String) typeObj;
+        }
 
         switch (type) {
             case "object":
@@ -54,11 +77,20 @@ class JsonFromSchemaGenerator implements Generator<String> {
             case "array":
                 sb.append(processArray(jsonObj));
                 break;
+            case "null":
+                sb.append("null");
+                break;
             default:
                 throw new RuntimeException("Unsupported JSON Schema Type:" + type);
-
         }
+
         return sb.toString();
+
+    }
+
+    private String anyType(List<String> types) {
+        int index = RANDOM.nextInt(types.size());
+        return types.get(index);
     }
 
     private String processObject(Map jsonObj) {
@@ -92,6 +124,8 @@ class JsonFromSchemaGenerator implements Generator<String> {
             return processSchemaJsonObjectForType(value);
         } else if (value.containsKey("enum")) {
             return processSchemaJsonObjectForEnum(value);
+        } else if (value.containsKey("$ref")) {
+            return processSchemaJsonObjectForRef(value);
         } else {
             return "";
         }
@@ -146,6 +180,11 @@ class JsonFromSchemaGenerator implements Generator<String> {
     private String processSchemaJsonObjectForEnum(Map jsonObj) {
         List<String> items = (List<String>) jsonObj.get("enum");
         return format("\"%s\"", Random.values(items).next());
+    }
+
+    private String processSchemaJsonObjectForRef(Map jsonObj) {
+        final String ref = (String) jsonObj.get("$ref");
+        return definitionsInJson.get(ref);
     }
 
     private String getSchemaContent() {
