@@ -123,10 +123,10 @@ class JsonFromSchemaGenerator implements Generator<String> {
 
     private String processValue(Map childJsonObj, Object key) {
         final Map value = (Map) childJsonObj.get(key);
-        if (value.containsKey("type")) {
-            return processSchemaJsonObjectForType(value);
-        } else if (value.containsKey("enum")) {
+        if (value.containsKey("enum")) {
             return processSchemaJsonObjectForEnum(value);
+        } else if (value.containsKey("type")) {
+            return processSchemaJsonObjectForType(value);
         } else if (value.containsKey("$ref")) {
             return processSchemaJsonObjectForRef(value);
         } else {
@@ -144,7 +144,15 @@ class JsonFromSchemaGenerator implements Generator<String> {
             minItems = ((Double) jsonObj.get("minItems")).intValue();
         }
 
-        final Object items = jsonObj.get("items");
+        final Object items;
+        if (jsonObj.containsKey("items")) {
+            items = jsonObj.get("items");
+        } else if (jsonObj.containsKey("properties")) {
+            items = jsonObj.get("properties");
+        } else {
+            throw new RuntimeException("Uknown Array Type:");
+        }
+
         String arrayValue;
 
         if (items instanceof Map) {
